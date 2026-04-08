@@ -163,6 +163,10 @@ Use:
 
 This template is intended as a starting point. You may still want to adjust host paths and environment variables for your setup.
 
+The template includes an icon URL that points at:
+
+- `examples/assets/tdarr-subtitle-ocr-icon.svg`
+
 ### Verify the container
 
 Open in a browser:

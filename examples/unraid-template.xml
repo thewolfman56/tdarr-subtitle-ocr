@@ -13,7 +13,7 @@
   <Category>MediaApp:Video MediaServer:Video</Category>
   <WebUI>http://[IP]:[PORT:8484]/healthz</WebUI>
   <TemplateURL/>
-  <Icon/>
+  <Icon>https://raw.githubusercontent.com/thewolfman56/tdarr-subtitle-ocr/main/examples/assets/tdarr-subtitle-ocr-icon.svg</Icon>
   <ExtraParams>--read-only --tmpfs /tmp:size=512m,mode=1777 --cap-drop=ALL --security-opt=no-new-privileges:true --pids-limit=256</ExtraParams>
   <PostArgs/>
   <CPUset/>
