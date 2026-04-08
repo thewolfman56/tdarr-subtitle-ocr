@@ -25,6 +25,9 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     TESSDATA_PREFIX=/usr/share/tesseract-ocr/5/tessdata
 
 RUN apt-get update \
+    && apt-get install -y --no-install-recommends software-properties-common \
+    && add-apt-repository -y universe \
+    && apt-get update \
     && apt-get install -y --no-install-recommends \
       build-essential \
       ca-certificates \
