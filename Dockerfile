@@ -1,4 +1,11 @@
-FROM python:3.11-slim-bookworm
+FROM ubuntu:24.04
+
+ARG DEBIAN_FRONTEND=noninteractive
+ARG PYTHON_BIN=python3
+ARG INTEL_IGC_VERSION=v2.30.1
+ARG INTEL_IGC_BUILD=2.30.1+20950
+ARG INTEL_COMPUTE_RUNTIME_VERSION=26.09.37435.1
+ARG INTEL_GMM_VERSION=22.9.0
 
 ARG SUBTITLE_EDIT_VERSION=4.0.13
 ARG SUBTITLE_EDIT_ARCHIVE=SE4013.zip
@@ -7,6 +14,8 @@ ARG SUBTITLE_EDIT_SHA256=cf32b80696666f4fc2e44d07c1cfa48e8dcae90d8c381de3472598d
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PYTHONPATH=/opt/tdarr-subtitle-ocr \
+    VIRTUAL_ENV=/opt/venv \
+    PATH=/opt/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
     PIP_NO_CACHE_DIR=1 \
     OCR_HOST=0.0.0.0 \
     OCR_PORT=8484 \
@@ -26,16 +35,29 @@ RUN apt-get update \
       ca-certificates \
       curl \
       ffmpeg \
-      intel-opencl-icd \
+      libgomp1 \
       libgl1 \
       libglib2.0-0 \
-      libze1 \
+      libstdc++6 \
       ocl-icd-libopencl1 \
       mono-complete \
+      python3 \
+      python3-pip \
+      python3-venv \
       tesseract-ocr \
       tesseract-ocr-eng \
       tesseract-ocr-osd \
       unzip \
+    && install -d /tmp/intel-gpu \
+    && curl -fsSL -o /tmp/intel-gpu/intel-igc-core-2.deb "https://github.com/intel/intel-graphics-compiler/releases/download/${INTEL_IGC_VERSION}/intel-igc-core-2_${INTEL_IGC_BUILD}_amd64.deb" \
+    && curl -fsSL -o /tmp/intel-gpu/intel-igc-opencl-2.deb "https://github.com/intel/intel-graphics-compiler/releases/download/${INTEL_IGC_VERSION}/intel-igc-opencl-2_${INTEL_IGC_BUILD}_amd64.deb" \
+    && curl -fsSL -o /tmp/intel-gpu/intel-ocloc.deb "https://github.com/intel/compute-runtime/releases/download/${INTEL_COMPUTE_RUNTIME_VERSION}/intel-ocloc_${INTEL_COMPUTE_RUNTIME_VERSION}-0_amd64.deb" \
+    && curl -fsSL -o /tmp/intel-gpu/intel-opencl-icd.deb "https://github.com/intel/compute-runtime/releases/download/${INTEL_COMPUTE_RUNTIME_VERSION}/intel-opencl-icd_${INTEL_COMPUTE_RUNTIME_VERSION}-0_amd64.deb" \
+    && curl -fsSL -o /tmp/intel-gpu/libigdgmm12.deb "https://github.com/intel/compute-runtime/releases/download/${INTEL_COMPUTE_RUNTIME_VERSION}/libigdgmm12_${INTEL_GMM_VERSION}_amd64.deb" \
+    && curl -fsSL -o /tmp/intel-gpu/libze-intel-gpu1.deb "https://github.com/intel/compute-runtime/releases/download/${INTEL_COMPUTE_RUNTIME_VERSION}/libze-intel-gpu1_${INTEL_COMPUTE_RUNTIME_VERSION}-0_amd64.deb" \
+    && apt-get install -y --no-install-recommends /tmp/intel-gpu/*.deb \
+    && ${PYTHON_BIN} -m venv "${VIRTUAL_ENV}" \
+    && "${VIRTUAL_ENV}/bin/pip" install --upgrade pip \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /opt/tdarr-subtitle-ocr
