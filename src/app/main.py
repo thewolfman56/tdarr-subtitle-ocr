@@ -11,7 +11,7 @@ from .filesystem import validate_input_path, validate_output_path
 from .models import OcrRequest, OcrResponse
 from .runner import OcrRunner
 from .security import require_api_token
-from src.common.accelerators import detect_all
+from src.common.accelerators import collect_intel_debug_details, detect_all
 
 settings = load_settings()
 logging.basicConfig(level=getattr(logging, settings.log_level.upper(), logging.INFO))
@@ -68,6 +68,20 @@ def healthz() -> dict[str, object]:
                 "details": status.details or {},
             }
             for name, status in accelerators.items()
+        },
+    }
+
+
+@app.get("/debug/openvino")
+def debug_openvino() -> dict[str, object]:
+    accelerators = detect_all()
+    intel = accelerators["intel"]
+    return {
+        "ok": True,
+        "intel": {
+            "available": intel.available,
+            "reason": intel.reason,
+            "details": intel.details or collect_intel_debug_details(),
         },
     }
 

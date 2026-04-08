@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib
 import os
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -12,6 +13,37 @@ class AcceleratorStatus:
     available: bool
     reason: str
     details: dict[str, object] | None = None
+
+
+def _existing_paths(paths: list[str]) -> list[str]:
+    return [path for path in paths if Path(path).exists()]
+
+
+def collect_intel_debug_details() -> dict[str, object]:
+    plugin_candidates = [
+        "/opt/intel/openvino/runtime/lib/intel64/plugins.xml",
+        "/opt/intel/openvino/runtime/lib/intel64/Release/plugins.xml",
+        "/usr/lib/x86_64-linux-gnu/openvino-2024/plugins.xml",
+        "/usr/lib/x86_64-linux-gnu/openvino/plugins.xml",
+    ]
+    library_globs = [
+        "/usr/lib*/**/libopenvino_intel_gpu_plugin.so*",
+        "/usr/lib*/**/libze_loader.so*",
+        "/usr/lib*/**/libOpenCL.so*",
+        "/usr/lib*/**/libigdgmm.so*",
+        "/usr/lib*/**/libigc.so*",
+    ]
+    libraries: list[str] = []
+    for pattern in library_globs:
+        libraries.extend(str(path) for path in Path("/").glob(pattern) if path.is_file())
+
+    return {
+        "pythonExecutable": sys.executable,
+        "pythonVersion": sys.version,
+        "openvinoPluginXmlCandidates": _existing_paths(plugin_candidates),
+        "intelGpuLibraryMatches": sorted(set(libraries))[:50],
+        "ldLibraryPath": os.environ.get("LD_LIBRARY_PATH"),
+    }
 
 
 def detect_nvidia() -> AcceleratorStatus:
@@ -61,6 +93,7 @@ def detect_intel() -> AcceleratorStatus:
         "driPathExists": Path("/dev/dri").exists(),
         "renderNodes": [str(path) for path in dri_devices],
     }
+    details.update(collect_intel_debug_details())
     if not dri_devices:
         return AcceleratorStatus(
             "intel",
