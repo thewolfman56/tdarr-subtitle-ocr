@@ -154,6 +154,8 @@ NVIDIA_DRIVER_CAPABILITIES=compute,utility
 For Intel add:
 
 - pass `/dev/dri` into the container
+- if unRAID still reports only CPU, confirm the host itself exposes `/dev/dri/renderD*`
+- restart the container after adding the device mapping
 
 ### Option B: Use the template as a starting point
 
@@ -166,6 +168,7 @@ This template is intended as a starting point. You may still want to adjust host
 The template includes an icon URL that points at:
 
 - `examples/assets/tdarr-subtitle-ocr-icon.svg`
+- an optional `/dev/dri` path mapping for Intel GPU passthrough
 
 ### Verify the container
 
@@ -179,6 +182,8 @@ You should see JSON reporting:
 - backend policy
 - allowed roots
 - accelerator detection results for NVIDIA and Intel
+
+For Intel GPU acceleration, the healthy target is an `intel.available: true` result. If you see `OpenVINO did not report a GPU device: ['CPU']`, the container is running but OpenVINO still cannot see an Intel GPU from inside the container.
 
 ## Tdarr Node Setup
 
