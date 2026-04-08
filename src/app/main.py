@@ -62,7 +62,11 @@ def healthz() -> dict[str, object]:
         "allowedRoots": [str(root) for root in settings.allowed_roots],
         "allowedExtensions": settings.allowed_extensions,
         "accelerators": {
-            name: {"available": status.available, "reason": status.reason}
+            name: {
+                "available": status.available,
+                "reason": status.reason,
+                "details": status.details or {},
+            }
             for name, status in accelerators.items()
         },
     }
