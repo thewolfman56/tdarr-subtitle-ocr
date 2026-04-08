@@ -27,7 +27,11 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 USER root
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends software-properties-common \
+    && apt-get install -y --no-install-recommends gnupg software-properties-common \
+    && curl -fsSL https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB \
+      | gpg --dearmor -o /usr/share/keyrings/intel-openvino.gpg \
+    && echo "deb [signed-by=/usr/share/keyrings/intel-openvino.gpg] https://apt.repos.intel.com/openvino/2024 ubuntu24 main" \
+      > /etc/apt/sources.list.d/intel-openvino-2024.list \
     && add-apt-repository -y universe \
     && apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -41,6 +45,7 @@ RUN apt-get update \
       libstdc++6 \
       ocl-icd-libopencl1 \
       mono-complete \
+      openvino \
       tesseract-ocr \
       tesseract-ocr-eng \
       tesseract-ocr-osd \
@@ -53,7 +58,6 @@ WORKDIR /opt/tdarr-subtitle-ocr
 
 COPY requirements.txt /opt/tdarr-subtitle-ocr/requirements.txt
 RUN pip install -r /opt/tdarr-subtitle-ocr/requirements.txt \
-    && pip install openvino==2024.1.0 \
     && pip install --no-deps rapidocr-openvino==1.4.4
 
 RUN curl -fsSL -o /tmp/subtitleedit.zip "https://github.com/SubtitleEdit/subtitleedit/releases/download/${SUBTITLE_EDIT_VERSION}/${SUBTITLE_EDIT_ARCHIVE}" \
