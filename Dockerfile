@@ -24,9 +24,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     OCR_BACKEND_POLICY=auto \
     TESSDATA_PREFIX=/usr/share/tesseract-ocr/5/tessdata
 
-RUN rm -rf /var/lib/apt/lists/* \
-    && mkdir -p /var/lib/apt/lists/partial \
-    && apt-get update \
+RUN apt-get update \
     && apt-get install -y --no-install-recommends software-properties-common \
     && add-apt-repository -y universe \
     && apt-get update \
@@ -46,6 +44,7 @@ RUN rm -rf /var/lib/apt/lists/* \
       tesseract-ocr-osd \
       unzip \
     && ${PYTHON_BIN} -m pip install --upgrade pip setuptools wheel \
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /opt/tdarr-subtitle-ocr
