@@ -24,7 +24,9 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     OCR_BACKEND_POLICY=auto \
     TESSDATA_PREFIX=/usr/share/tesseract-ocr/5/tessdata
 
-RUN apt-get update \
+RUN rm -rf /var/lib/apt/lists/* \
+    && mkdir -p /var/lib/apt/lists/partial \
+    && apt-get update \
     && apt-get install -y --no-install-recommends software-properties-common \
     && add-apt-repository -y universe \
     && apt-get update \
