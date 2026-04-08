@@ -52,7 +52,8 @@ RUN apt-get update \
 WORKDIR /opt/tdarr-subtitle-ocr
 
 COPY requirements.txt /opt/tdarr-subtitle-ocr/requirements.txt
-RUN pip install -r /opt/tdarr-subtitle-ocr/requirements.txt
+RUN pip install -r /opt/tdarr-subtitle-ocr/requirements.txt \
+    && pip install --no-deps rapidocr-openvino==1.4.4
 
 RUN curl -fsSL -o /tmp/subtitleedit.zip "https://github.com/SubtitleEdit/subtitleedit/releases/download/${SUBTITLE_EDIT_VERSION}/${SUBTITLE_EDIT_ARCHIVE}" \
     && echo "${SUBTITLE_EDIT_SHA256}  /tmp/subtitleedit.zip" | sha256sum -c - \
