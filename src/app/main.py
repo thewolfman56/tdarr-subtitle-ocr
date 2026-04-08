@@ -18,6 +18,7 @@ logging.basicConfig(level=getattr(logging, settings.log_level.upper(), logging.I
 
 app = FastAPI(title="Tdarr Subtitle OCR", version="1.0.0")
 runner = OcrRunner(settings)
+LOGGER = logging.getLogger("tdarr_subtitle_ocr")
 
 
 def verify_token(authorization: str | None = Header(default=None)) -> None:
@@ -30,12 +31,19 @@ def _copy_client_script_if_needed(current_settings: Settings) -> None:
 
     source = Path("/opt/tdarr-subtitle-ocr/client/tdarr-ocr-client.sh")
     destination_dir = current_settings.copy_client_dir
-    destination_dir.mkdir(parents=True, exist_ok=True)
-    destination = destination_dir / source.name
+    try:
+        destination_dir.mkdir(parents=True, exist_ok=True)
+        destination = destination_dir / source.name
 
-    if not destination.exists() or source.read_bytes() != destination.read_bytes():
-        shutil.copy2(source, destination)
-        destination.chmod(0o755)
+        if not destination.exists() or source.read_bytes() != destination.read_bytes():
+            shutil.copy2(source, destination)
+            destination.chmod(0o755)
+    except OSError as exc:
+        LOGGER.warning(
+            "Unable to export Tdarr client script to '%s': %s",
+            destination_dir,
+            exc,
+        )
 
 
 @app.on_event("startup")
