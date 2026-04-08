@@ -32,6 +32,7 @@ RUN apt-get update \
       | gpg --dearmor -o /usr/share/keyrings/intel-openvino.gpg \
     && echo "deb [signed-by=/usr/share/keyrings/intel-openvino.gpg] https://apt.repos.intel.com/openvino/2024 ubuntu24 main" \
       > /etc/apt/sources.list.d/intel-openvino-2024.list \
+    && add-apt-repository -y ppa:kobuk-team/intel-graphics \
     && add-apt-repository -y universe \
     && apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -39,11 +40,17 @@ RUN apt-get update \
       ca-certificates \
       curl \
       ffmpeg \
+      intel-gsc \
+      intel-metrics-discovery \
+      intel-opencl-icd \
       libgomp1 \
       libgl1 \
       libglib2.0-0 \
+      libze-intel-gpu1 \
+      libze1 \
       libstdc++6 \
       ocl-icd-libopencl1 \
+      clinfo \
       mono-complete \
       openvino \
       tesseract-ocr \
