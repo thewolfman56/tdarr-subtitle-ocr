@@ -32,6 +32,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
+      build-essential \
       ca-certificates \
       curl \
       ffmpeg \
@@ -42,6 +43,7 @@ RUN apt-get update \
       ocl-icd-libopencl1 \
       mono-complete \
       python3 \
+      python3-dev \
       python3-pip \
       python3-venv \
       tesseract-ocr \
@@ -57,7 +59,7 @@ RUN apt-get update \
     && curl -fsSL -o /tmp/intel-gpu/libze-intel-gpu1.deb "https://github.com/intel/compute-runtime/releases/download/${INTEL_COMPUTE_RUNTIME_VERSION}/libze-intel-gpu1_${INTEL_COMPUTE_RUNTIME_VERSION}-0_amd64.deb" \
     && apt-get install -y --no-install-recommends /tmp/intel-gpu/*.deb \
     && ${PYTHON_BIN} -m venv "${VIRTUAL_ENV}" \
-    && "${VIRTUAL_ENV}/bin/pip" install --upgrade pip \
+    && "${VIRTUAL_ENV}/bin/pip" install --upgrade pip setuptools wheel \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /opt/tdarr-subtitle-ocr
