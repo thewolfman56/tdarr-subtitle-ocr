@@ -26,11 +26,10 @@ RUN apt-get update \
       ca-certificates \
       curl \
       ffmpeg \
-      intel-level-zero-gpu \
       intel-opencl-icd \
       libgl1 \
       libglib2.0-0 \
-      level-zero \
+      libze1 \
       ocl-icd-libopencl1 \
       mono-complete \
       tesseract-ocr \
