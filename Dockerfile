@@ -53,6 +53,7 @@ WORKDIR /opt/tdarr-subtitle-ocr
 
 COPY requirements.txt /opt/tdarr-subtitle-ocr/requirements.txt
 RUN pip install -r /opt/tdarr-subtitle-ocr/requirements.txt \
+    && pip install openvino==2024.1.0 \
     && pip install --no-deps rapidocr-openvino==1.4.4
 
 RUN curl -fsSL -o /tmp/subtitleedit.zip "https://github.com/SubtitleEdit/subtitleedit/releases/download/${SUBTITLE_EDIT_VERSION}/${SUBTITLE_EDIT_ARCHIVE}" \
