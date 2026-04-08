@@ -39,9 +39,6 @@ RUN apt-get update \
       libstdc++6 \
       ocl-icd-libopencl1 \
       mono-complete \
-      python3 \
-      python3-dev \
-      python3-pip \
       tesseract-ocr \
       tesseract-ocr-eng \
       tesseract-ocr-osd \
