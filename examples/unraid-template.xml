@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>TdarrSubtitleOCR</Name>
+  <Repository>local/tdarr-subtitle-ocr:latest</Repository>
+  <Registry>https://hub.docker.com/</Registry>
+  <Network>bridge</Network>
+  <MyIP/>
+  <Shell>sh</Shell>
+  <Privileged>false</Privileged>
+  <Support/>
+  <Project>https://github.com/HaveAGitGat/Tdarr</Project>
+  <Overview>Sidecar OCR service for Tdarr image-based subtitle conversion to SRT.</Overview>
+  <Category>MediaApp:Video MediaServer:Video</Category>
+  <WebUI>http://[IP]:[PORT:8484]/healthz</WebUI>
+  <TemplateURL/>
+  <Icon/>
+  <ExtraParams>--read-only --tmpfs /tmp:size=512m,mode=1777 --cap-drop=ALL --security-opt=no-new-privileges:true --pids-limit=256</ExtraParams>
+  <PostArgs/>
+  <CPUset/>
+  <DateInstalled/>
+  <DonateText/>
+  <DonateLink/>
+  <Requires/>
+  <Config Name="WebUI" Target="8484" Default="8484" Mode="tcp" Description="OCR service port" Type="Port" Display="always" Required="true" Mask="false">8484</Config>
+  <Config Name="AppData" Target="/config" Default="/mnt/user/appdata/tdarr-subtitle-ocr" Mode="rw" Description="Persistent config and exported client script" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/tdarr-subtitle-ocr</Config>
+  <Config Name="MediaRoot" Target="/media" Default="/mnt/user/media" Mode="rw" Description="Media root shared with Tdarr" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/media</Config>
+  <Config Name="CacheRoot" Target="/cache" Default="/mnt/user/cache" Mode="rw" Description="Cache root shared with Tdarr" Type="Path" Display="always" Required="false" Mask="false">/mnt/user/cache</Config>
+  <Config Name="WorkRoot" Target="/work" Default="/mnt/user/appdata/tdarr-node/transcode_cache" Mode="rw" Description="Tdarr worker temp directory shared with Tdarr node" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/tdarr-node/transcode_cache</Config>
+  <Config Name="ApiToken" Target="OCR_API_TOKEN" Default="" Mode="" Description="Bearer token required by the client wrapper" Type="Variable" Display="always" Required="false" Mask="true"/>
+  <Config Name="BackendPolicy" Target="OCR_BACKEND_POLICY" Default="auto" Mode="" Description="auto, nvidia, intel, or subtitleedit" Type="Variable" Display="advanced" Required="true" Mask="false">auto</Config>
+  <Config Name="BackendStrict" Target="OCR_BACKEND_STRICT" Default="false" Mode="" Description="Fail instead of falling back when requested GPU backend is unavailable" Type="Variable" Display="advanced" Required="true" Mask="false">false</Config>
+  <Config Name="AllowedRoots" Target="OCR_ALLOWED_ROOTS" Default="/media,/cache,/work" Mode="" Description="Comma-separated path roots allowed for OCR requests" Type="Variable" Display="advanced" Required="true" Mask="false">/media,/cache,/work</Config>
+  <Config Name="AllowedExts" Target="OCR_ALLOWED_EXTENSIONS" Default=".sup,.sub,.idx,.mkv,.json,.png,.bmp,.jpg,.jpeg,.tif,.tiff,.webp" Mode="" Description="Comma-separated input extensions accepted by the API" Type="Variable" Display="advanced" Required="true" Mask="false">.sup,.sub,.idx,.mkv,.json,.png,.bmp,.jpg,.jpeg,.tif,.tiff,.webp</Config>
+  <Config Name="ClientExport" Target="OCR_COPY_CLIENT_DIR" Default="/config/client" Mode="" Description="Directory inside AppData where the Tdarr client wrapper is copied" Type="Variable" Display="always" Required="true" Mask="false">/config/client</Config>
+  <Config Name="MaxJobs" Target="OCR_MAX_CONCURRENT_JOBS" Default="1" Mode="" Description="Maximum simultaneous OCR jobs" Type="Variable" Display="advanced" Required="true" Mask="false">1</Config>
+  <Config Name="MaxInputMb" Target="OCR_MAX_INPUT_SIZE_MB" Default="256" Mode="" Description="Maximum accepted input file size in MB" Type="Variable" Display="advanced" Required="true" Mask="false">256</Config>
+</Container>

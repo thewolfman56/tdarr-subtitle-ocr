@@ -1,0 +1,7 @@
+fastapi==0.115.12
+uvicorn==0.34.0
+numpy==2.2.4
+Pillow==11.1.0
+rapidocr-openvino==1.4.4
+rapidocr-onnxruntime==1.4.4
+onnxruntime-gpu==1.21.0
