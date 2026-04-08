@@ -1,11 +1,7 @@
-FROM python:3.11-slim-bookworm
+FROM openvino/ubuntu24_runtime:latest
 
 ARG DEBIAN_FRONTEND=noninteractive
-ARG PYTHON_BIN=python
-ARG INTEL_IGC_VERSION=v2.30.1
-ARG INTEL_IGC_BUILD=2.30.1+20950
-ARG INTEL_COMPUTE_RUNTIME_VERSION=26.09.37435.1
-ARG INTEL_GMM_VERSION=22.9.0
+ARG PYTHON_BIN=python3
 
 ARG SUBTITLE_EDIT_VERSION=4.0.13
 ARG SUBTITLE_EDIT_ARCHIVE=SE4013.zip
@@ -40,19 +36,13 @@ RUN apt-get update \
       libstdc++6 \
       ocl-icd-libopencl1 \
       mono-complete \
+      python3 \
       python3-dev \
+      python3-pip \
       tesseract-ocr \
       tesseract-ocr-eng \
       tesseract-ocr-osd \
       unzip \
-    && install -d /tmp/intel-gpu \
-    && curl -fsSL -o /tmp/intel-gpu/intel-igc-core-2.deb "https://github.com/intel/intel-graphics-compiler/releases/download/${INTEL_IGC_VERSION}/intel-igc-core-2_${INTEL_IGC_BUILD}_amd64.deb" \
-    && curl -fsSL -o /tmp/intel-gpu/intel-igc-opencl-2.deb "https://github.com/intel/intel-graphics-compiler/releases/download/${INTEL_IGC_VERSION}/intel-igc-opencl-2_${INTEL_IGC_BUILD}_amd64.deb" \
-    && curl -fsSL -o /tmp/intel-gpu/intel-ocloc.deb "https://github.com/intel/compute-runtime/releases/download/${INTEL_COMPUTE_RUNTIME_VERSION}/intel-ocloc_${INTEL_COMPUTE_RUNTIME_VERSION}-0_amd64.deb" \
-    && curl -fsSL -o /tmp/intel-gpu/intel-opencl-icd.deb "https://github.com/intel/compute-runtime/releases/download/${INTEL_COMPUTE_RUNTIME_VERSION}/intel-opencl-icd_${INTEL_COMPUTE_RUNTIME_VERSION}-0_amd64.deb" \
-    && curl -fsSL -o /tmp/intel-gpu/libigdgmm12.deb "https://github.com/intel/compute-runtime/releases/download/${INTEL_COMPUTE_RUNTIME_VERSION}/libigdgmm12_${INTEL_GMM_VERSION}_amd64.deb" \
-    && curl -fsSL -o /tmp/intel-gpu/libze-intel-gpu1.deb "https://github.com/intel/compute-runtime/releases/download/${INTEL_COMPUTE_RUNTIME_VERSION}/libze-intel-gpu1_${INTEL_COMPUTE_RUNTIME_VERSION}-0_amd64.deb" \
-    && apt-get install -y --no-install-recommends /tmp/intel-gpu/*.deb \
     && ${PYTHON_BIN} -m pip install --upgrade pip setuptools wheel \
     && rm -rf /var/lib/apt/lists/*
 
@@ -89,4 +79,4 @@ EXPOSE 8484
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
   CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8484/healthz', timeout=3).read()"
 
-CMD ["python", "-m", "uvicorn", "src.app.main:app", "--host", "0.0.0.0", "--port", "8484"]
+CMD ["python3", "-m", "uvicorn", "src.app.main:app", "--host", "0.0.0.0", "--port", "8484"]
