@@ -1,14 +1,14 @@
 <?xml version="1.0"?>
 <Container version="2">
   <Name>TdarrSubtitleOCR</Name>
-  <Repository>local/tdarr-subtitle-ocr:latest</Repository>
+  <Repository>ghcr.io/thewolfman56/tdarr-subtitle-ocr:latest</Repository>
   <Registry>https://hub.docker.com/</Registry>
   <Network>bridge</Network>
   <MyIP/>
   <Shell>sh</Shell>
   <Privileged>false</Privileged>
   <Support/>
-  <Project>https://github.com/HaveAGitGat/Tdarr</Project>
+  <Project>https://github.com/thewolfman56/tdarr-subtitle-ocr</Project>
   <Overview>Sidecar OCR service for Tdarr image-based subtitle conversion to SRT.</Overview>
   <Category>MediaApp:Video MediaServer:Video</Category>
   <WebUI>http://[IP]:[PORT:8484]/healthz</WebUI>
