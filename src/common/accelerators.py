@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib
 import os
 import sys
+from glob import glob
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -35,7 +36,7 @@ def collect_intel_debug_details() -> dict[str, object]:
     ]
     libraries: list[str] = []
     for pattern in library_globs:
-        libraries.extend(str(path) for path in Path("/").glob(pattern) if path.is_file())
+        libraries.extend(path for path in glob(pattern, recursive=True) if Path(path).is_file())
 
     return {
         "pythonExecutable": sys.executable,
