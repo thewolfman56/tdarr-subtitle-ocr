@@ -14,14 +14,14 @@ SCRIPT_ROOT = Path(__file__).resolve().parents[1]
 if str(SCRIPT_ROOT) not in sys.path:
     sys.path.insert(0, str(SCRIPT_ROOT))
 
-from common.accelerators import detect_intel, detect_nvidia
+from common.accelerators import detect_intel, detect_npu, detect_nvidia
 
 IMAGE_EXTENSIONS = {".png", ".bmp", ".jpg", ".jpeg", ".tif", ".tiff", ".webp"}
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="GPU OCR engine wrapper for NVIDIA CUDA and Intel OpenVINO.")
-    parser.add_argument("--backend", required=True, choices=["nvidia", "intel"])
+    parser = argparse.ArgumentParser(description="GPU/NPU OCR engine wrapper for NVIDIA CUDA and Intel OpenVINO.")
+    parser.add_argument("--backend", required=True, choices=["nvidia", "intel", "npu"])
     parser.add_argument("--input", required=True)
     parser.add_argument("--output", required=True)
     parser.add_argument("--language", required=True)
@@ -40,12 +40,18 @@ def main() -> int:
             raise SystemExit(status.reason)
         engine_name = "nvidia-cuda-rapidocr"
         recognizer = _build_nvidia_ocr()
-    else:
+    elif args.backend == "intel":
         status = detect_intel()
         if not status.available:
             raise SystemExit(status.reason)
         engine_name = "intel-openvino-rapidocr"
-        recognizer = _build_intel_ocr()
+        recognizer = _build_openvino_ocr("GPU")
+    else:
+        status = detect_npu()
+        if not status.available:
+            raise SystemExit(status.reason)
+        engine_name = "intel-npu-openvino-rapidocr"
+        recognizer = _build_openvino_ocr("NPU")
 
     if input_path.suffix.lower() == ".json":
         write_manifest_srt(recognizer, input_path, output_path)
@@ -84,7 +90,7 @@ def _build_nvidia_ocr():
     return rapid_ocr_cls(**constructor_kwargs)
 
 
-def _build_intel_ocr():
+def _build_openvino_ocr(device_name: str):
     module = importlib.import_module("rapidocr_openvino")
     rapid_ocr_cls = getattr(module, "RapidOCR")
 
@@ -97,6 +103,14 @@ def _build_intel_ocr():
             constructor_kwargs["cls_use_openvino"] = True
         if "rec_use_openvino" in signature.parameters:
             constructor_kwargs["rec_use_openvino"] = True
+        for parameter in ("device", "device_name"):
+            if parameter in signature.parameters:
+                constructor_kwargs[parameter] = device_name
+        for prefix in ("det", "cls", "rec"):
+            for suffix in ("device", "device_name"):
+                key = f"{prefix}_{suffix}"
+                if key in signature.parameters:
+                    constructor_kwargs[key] = device_name
     except (TypeError, ValueError):
         pass
 

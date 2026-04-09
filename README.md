@@ -1,6 +1,6 @@
 # Tdarr Subtitle OCR Sidecar
 
-External OCR sidecar for Tdarr image-based subtitles with secure HTTP execution, Subtitle Edit compatibility fallback, and GPU auto-detection for NVIDIA CUDA and Intel iGPU/Arc via OpenVINO.
+External OCR sidecar for Tdarr image-based subtitles with secure HTTP execution, Subtitle Edit compatibility fallback, and accelerator auto-detection for NVIDIA CUDA, Intel iGPU/Arc, and Intel NPU via OpenVINO.
 
 ## Features
 
@@ -11,6 +11,7 @@ External OCR sidecar for Tdarr image-based subtitles with secure HTTP execution,
 - read-only-container-friendly design
 - NVIDIA CUDA OCR auto-detection
 - Intel iGPU / Arc OpenVINO OCR auto-detection
+- Intel NPU OpenVINO detection and backend selection support
 - Subtitle Edit fallback for direct `.sup`, `.sub`, `.idx`, and `.mkv` subtitle-container OCR
 - exported Tdarr client wrapper script for `OCR Tool Path`
 - unRAID-friendly Docker and template examples
@@ -18,6 +19,7 @@ External OCR sidecar for Tdarr image-based subtitles with secure HTTP execution,
 ## Repo layout
 
 - `Dockerfile`
+- `Dockerfile.intel`
 - `requirements.txt`
 - `src/`
 - `client/`
@@ -32,13 +34,14 @@ Behavior:
 - raster image or OCR-manifest JSON input:
   - prefer NVIDIA CUDA when available
   - otherwise prefer Intel OpenVINO GPU when available
+  - otherwise prefer Intel OpenVINO NPU when available
   - otherwise fall back to Subtitle Edit if allowed
 - subtitle-container input like `.sup`, `.sub`, `.idx`, or `.mkv`:
   - use Subtitle Edit because it remains the safest bundled parser/OCR path for those formats
 
 Control variables:
 
-- `OCR_BACKEND_POLICY=auto|nvidia|intel|subtitleedit`
+- `OCR_BACKEND_POLICY=auto|nvidia|intel|npu|subtitleedit`
 - `OCR_BACKEND_STRICT=true|false`
 
 If `OCR_BACKEND_STRICT=true`, the service fails instead of falling back when the requested GPU backend cannot run.
@@ -49,6 +52,12 @@ Build from the repo root:
 
 ```bash
 docker build -t local/tdarr-subtitle-ocr:latest .
+```
+
+Dedicated Intel/OpenVINO build from the repo root:
+
+```bash
+docker build -f Dockerfile.intel -t local/tdarr-subtitle-ocr:intel .
 ```
 
 ## Tdarr Integration
@@ -73,6 +82,7 @@ Two common ways to install on unRAID:
 Files provided:
 
 - `examples/docker-compose.yml`
+- `examples/docker-compose.intel.yml`
 - `examples/unraid-template.xml`
 
 ### Prerequisites
@@ -86,6 +96,9 @@ Files provided:
 - for Intel iGPU or Arc:
   - `/dev/dri` available on the host
   - Intel GPU stack working on unRAID
+- for Intel NPU:
+  - `/dev/accel` available on the host
+  - host kernel/driver support for the platform NPU
 
 ### Path planning
 
@@ -112,6 +125,13 @@ From an unRAID terminal:
 ```bash
 cd /mnt/user/appdata/tdarr-subtitle-ocr-repo
 docker build -t local/tdarr-subtitle-ocr:latest .
+```
+
+For the dedicated Intel-focused image:
+
+```bash
+cd /mnt/user/appdata/tdarr-subtitle-ocr-repo
+docker build -f Dockerfile.intel -t local/tdarr-subtitle-ocr:intel .
 ```
 
 #### 3. Create the container
@@ -154,6 +174,7 @@ NVIDIA_DRIVER_CAPABILITIES=compute,utility
 For Intel add:
 
 - pass `/dev/dri` into the container
+- pass `/dev/accel` into the container for NPU-capable Intel systems
 - if unRAID still reports only CPU, confirm the host itself exposes `/dev/dri/renderD*`
 - restart the container after adding the device mapping
 
@@ -169,6 +190,7 @@ The template includes an icon URL that points at:
 
 - `examples/assets/tdarr-subtitle-ocr-icon.svg`
 - an optional `/dev/dri` path mapping for Intel GPU passthrough
+- an optional `/dev/accel` path mapping for Intel NPU passthrough
 
 ### Verify the container
 
@@ -184,6 +206,8 @@ You should see JSON reporting:
 - accelerator detection results for NVIDIA and Intel
 
 For Intel GPU acceleration, the healthy target is an `intel.available: true` result. If you see `OpenVINO did not report a GPU device: ['CPU']`, the container is running but OpenVINO still cannot see an Intel GPU from inside the container.
+
+For Intel NPU acceleration, the healthy target is an `npu.available: true` result and `openvinoAvailableDevices` including `NPU`.
 
 ## Tdarr Node Setup
 
@@ -247,6 +271,7 @@ Run the flow against a single file with a PGS subtitle stream and confirm:
 See:
 
 - `examples/docker-compose.yml`
+- `examples/docker-compose.intel.yml`
 
 The compose example includes:
 
@@ -256,6 +281,7 @@ The compose example includes:
 - `no-new-privileges`
 - NVIDIA environment variables
 - `/dev/dri` mapping for Intel
+- optional `/dev/accel` mapping for Intel NPU
 
 ## Environment variables
 
@@ -267,7 +293,7 @@ The compose example includes:
 - `OCR_REQUEST_TIMEOUT_SECONDS`: default `3600`
 - `OCR_COPY_CLIENT_DIR`: exports the Tdarr client wrapper to persistent storage
 - `OCR_BACKEND_COMMAND`: defaults to the auto-dispatcher
-- `OCR_BACKEND_POLICY`: `auto`, `nvidia`, `intel`, or `subtitleedit`
+- `OCR_BACKEND_POLICY`: `auto`, `nvidia`, `intel`, `npu`, or `subtitleedit`
 - `OCR_BACKEND_STRICT`: force failure instead of fallback
 - `OCR_SUBTITLE_EDIT_BIN`: default `/opt/subtitleedit/SubtitleEdit.exe`
 
@@ -285,6 +311,7 @@ The compose example includes:
 
 - direct `.sup` parsing still falls back to Subtitle Edit for now
 - the GPU engines currently operate on raster-image inputs or OCR-manifest JSON inputs
+- Intel NPU execution depends on host driver support and current OpenVINO device availability
 - only English Tesseract data is installed by default in the image
 - for additional OCR languages, add the relevant Tesseract packages or mount your own tessdata set
 

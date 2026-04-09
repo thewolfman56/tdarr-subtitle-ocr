@@ -52,7 +52,7 @@ def main() -> int:
                 ]
             )
 
-    if strict_mode and backend_policy in {"nvidia", "intel"} and input_path.suffix.lower() in SUBTITLE_CONTAINER_EXTENSIONS:
+    if strict_mode and backend_policy in {"nvidia", "intel", "npu"} and input_path.suffix.lower() in SUBTITLE_CONTAINER_EXTENSIONS:
         raise SystemExit(
             f"Strict mode forbids fallback, and the {backend_policy} GPU backend does not parse '{input_path.suffix}' directly."
         )
@@ -80,14 +80,16 @@ def choose_gpu_engine(backend_policy: str, statuses, strict_mode: bool) -> str |
         requested = ["nvidia"]
     elif backend_policy == "intel":
         requested = ["intel"]
+    elif backend_policy == "npu":
+        requested = ["npu"]
     else:
-        requested = ["nvidia", "intel"]
+        requested = ["nvidia", "intel", "npu"]
 
     for name in requested:
         if statuses[name].available:
             return name
 
-    if strict_mode and backend_policy in {"nvidia", "intel"}:
+    if strict_mode and backend_policy in {"nvidia", "intel", "npu"}:
         raise SystemExit(statuses[backend_policy].reason)
 
     return None

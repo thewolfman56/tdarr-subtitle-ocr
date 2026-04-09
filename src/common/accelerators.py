@@ -29,10 +29,12 @@ def collect_intel_debug_details() -> dict[str, object]:
     ]
     library_globs = [
         "/usr/lib*/**/libopenvino_intel_gpu_plugin.so*",
+        "/usr/lib*/**/libopenvino_intel_npu_plugin.so*",
         "/usr/lib*/**/libze_loader.so*",
         "/usr/lib*/**/libOpenCL.so*",
         "/usr/lib*/**/libigdgmm.so*",
         "/usr/lib*/**/libigc.so*",
+        "/usr/lib*/**/libnpu_driver_compiler_adapter.so*",
     ]
     libraries: list[str] = []
     for pattern in library_globs:
@@ -45,6 +47,18 @@ def collect_intel_debug_details() -> dict[str, object]:
         "intelGpuLibraryMatches": sorted(set(libraries))[:50],
         "ldLibraryPath": os.environ.get("LD_LIBRARY_PATH"),
     }
+
+
+def collect_npu_debug_details() -> dict[str, object]:
+    accel_nodes = sorted(Path("/dev/accel").glob("*")) if Path("/dev/accel").exists() else []
+    details = collect_intel_debug_details()
+    details.update(
+        {
+            "accelPathExists": Path("/dev/accel").exists(),
+            "accelNodes": [str(path) for path in accel_nodes],
+        }
+    )
+    return details
 
 
 def detect_nvidia() -> AcceleratorStatus:
@@ -137,8 +151,46 @@ def detect_intel() -> AcceleratorStatus:
     return AcceleratorStatus("intel", True, f"OpenVINO GPU devices available: {devices}", details)
 
 
+def detect_npu() -> AcceleratorStatus:
+    details = collect_npu_debug_details()
+
+    try:
+        ov = importlib.import_module("openvino")
+        core = ov.Core()
+        devices = list(getattr(core, "available_devices", []))
+        details["openvinoAvailableDevices"] = devices
+        try:
+            details["openvinoNpuFullDeviceName"] = core.get_property("NPU", "FULL_DEVICE_NAME")
+        except Exception as exc:
+            details["openvinoNpuFullDeviceNameError"] = str(exc)
+        try:
+            model = ov.runtime.Model(
+                results=[],
+                sinks=[],
+                parameters=[],
+                name="npu_probe",
+            )
+            core.compile_model(model=model, device_name="NPU")
+            details["openvinoNpuCompileProbe"] = "success"
+        except Exception as exc:
+            details["openvinoNpuCompileProbeError"] = str(exc)
+    except Exception as exc:  # pragma: no cover - runtime dependency probe
+        return AcceleratorStatus("npu", False, f"OpenVINO probe failed: {exc}", details)
+
+    if not any(device == "NPU" or device.startswith("NPU.") for device in devices):
+        return AcceleratorStatus(
+            "npu",
+            False,
+            f"OpenVINO did not report an NPU device: {devices}",
+            details,
+        )
+
+    return AcceleratorStatus("npu", True, f"OpenVINO NPU devices available: {devices}", details)
+
+
 def detect_all() -> dict[str, AcceleratorStatus]:
     return {
         "nvidia": detect_nvidia(),
         "intel": detect_intel(),
+        "npu": detect_npu(),
     }

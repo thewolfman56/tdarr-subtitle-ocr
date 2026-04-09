@@ -1,0 +1,36 @@
+services:
+  tdarr-subtitle-ocr-intel:
+    build:
+      context: ..
+      dockerfile: Dockerfile.intel
+    image: local/tdarr-subtitle-ocr:intel
+    container_name: tdarr-subtitle-ocr-intel
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp:size=512m,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    pids_limit: 256
+    environment:
+      OCR_API_TOKEN: change-me
+      OCR_BACKEND_POLICY: auto
+      OCR_BACKEND_STRICT: "false"
+      OCR_ALLOWED_ROOTS: /media,/cache,/work
+      OCR_ALLOWED_EXTENSIONS: .sup,.sub,.idx,.mkv,.json,.png,.bmp,.jpg,.jpeg,.tif,.tiff,.webp
+      OCR_COPY_CLIENT_DIR: /config/client
+      OCR_MAX_CONCURRENT_JOBS: 1
+      OCR_MAX_INPUT_SIZE_MB: 256
+      TESSDATA_PREFIX: /usr/share/tesseract-ocr/5/tessdata
+    devices:
+      - /dev/dri:/dev/dri
+      - /dev/accel:/dev/accel
+    volumes:
+      - /mnt/user/appdata/tdarr-subtitle-ocr:/config
+      - /mnt/user/media:/media
+      - /mnt/user/cache:/cache
+      - /mnt/user/appdata/tdarr-node/transcode_cache:/work
+    ports:
+      - "8484:8484"

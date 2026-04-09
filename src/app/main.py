@@ -76,12 +76,18 @@ def healthz() -> dict[str, object]:
 def debug_openvino() -> dict[str, object]:
     accelerators = detect_all()
     intel = accelerators["intel"]
+    npu = accelerators["npu"]
     return {
         "ok": True,
         "intel": {
             "available": intel.available,
             "reason": intel.reason,
             "details": intel.details or collect_intel_debug_details(),
+        },
+        "npu": {
+            "available": npu.available,
+            "reason": npu.reason,
+            "details": npu.details or {},
         },
     }
 
