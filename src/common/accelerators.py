@@ -108,6 +108,21 @@ def detect_intel() -> AcceleratorStatus:
         core = ov.Core()
         devices = list(getattr(core, "available_devices", []))
         details["openvinoAvailableDevices"] = devices
+        try:
+            details["openvinoGpuFullDeviceName"] = core.get_property("GPU", "FULL_DEVICE_NAME")
+        except Exception as exc:
+            details["openvinoGpuFullDeviceNameError"] = str(exc)
+        try:
+            model = ov.runtime.Model(
+                results=[],
+                sinks=[],
+                parameters=[],
+                name="gpu_probe",
+            )
+            core.compile_model(model=model, device_name="GPU")
+            details["openvinoGpuCompileProbe"] = "success"
+        except Exception as exc:
+            details["openvinoGpuCompileProbeError"] = str(exc)
     except Exception as exc:  # pragma: no cover - runtime dependency probe
         return AcceleratorStatus("intel", False, f"OpenVINO probe failed: {exc}", details)
 
