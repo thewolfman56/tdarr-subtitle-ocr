@@ -154,6 +154,8 @@ Recommended extra parameters:
 Recommended environment variables:
 
 ```text
+PUID=99
+PGID=100
 OCR_API_TOKEN=change-this-to-a-long-random-token
 OCR_COPY_CLIENT_DIR=/config/client
 OCR_ALLOWED_ROOTS=/media,/cache,/work
@@ -163,6 +165,8 @@ OCR_BACKEND_STRICT=false
 OCR_MAX_CONCURRENT_JOBS=1
 OCR_MAX_INPUT_SIZE_MB=256
 ```
+
+On unRAID, `PUID=99` and `PGID=100` match the default `nobody:users` ownership of appdata shares. That lets the container create `/config/client` without having to pre-create it manually or open the folder up with `777`.
 
 For NVIDIA add:
 
@@ -216,6 +220,8 @@ For Intel NPU acceleration, the healthy target is an `npu.available: true` resul
 Set this environment variable on the OCR sidecar:
 
 ```text
+PUID=99
+PGID=100
 OCR_COPY_CLIENT_DIR=/config/client
 ```
 
@@ -286,6 +292,8 @@ The compose example includes:
 ## Environment variables
 
 - `OCR_API_TOKEN`: optional bearer token
+- `PUID`: runtime user ID for bind-mounted storage ownership alignment
+- `PGID`: runtime group ID for bind-mounted storage ownership alignment
 - `OCR_ALLOWED_ROOTS`: comma-separated allow-list of readable/writable roots
 - `OCR_ALLOWED_EXTENSIONS`: accepted input extensions
 - `OCR_MAX_INPUT_SIZE_MB`: default `256`

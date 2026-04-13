@@ -1,6 +1,24 @@
 #!/bin/sh
 set -eu
 
+DEFAULT_UID=10001
+DEFAULT_GID=10001
+TARGET_UID="${PUID:-$DEFAULT_UID}"
+TARGET_GID="${PGID:-$DEFAULT_GID}"
+
+sync_runtime_user() {
+  current_uid=$(id -u tdarr)
+  current_gid=$(id -g tdarr)
+
+  if [ "$current_gid" != "$TARGET_GID" ]; then
+    groupmod -o -g "$TARGET_GID" tdarr
+  fi
+
+  if [ "$current_uid" != "$TARGET_UID" ]; then
+    usermod -o -u "$TARGET_UID" -g "$TARGET_GID" tdarr
+  fi
+}
+
 prepare_dir() {
   target="$1"
   if [ -z "$target" ]; then
@@ -8,14 +26,16 @@ prepare_dir() {
   fi
 
   parent_dir=$(dirname "$target")
-  mkdir -p "$parent_dir"
-  mkdir -p "$target"
+  mkdir -p "$parent_dir" 2>/dev/null || true
+  runuser -u tdarr -- mkdir -p "$parent_dir"
+  runuser -u tdarr -- mkdir -p "$target"
   chown -R tdarr:tdarr "$target" "$parent_dir" 2>/dev/null || true
 }
 
+sync_runtime_user
+install -d -o tdarr -g tdarr /home/tdarr /tmp/tdarr-subtitle-ocr
 prepare_dir "/config"
 prepare_dir "${OCR_COPY_CLIENT_DIR:-}"
-mkdir -p /tmp/tdarr-subtitle-ocr
-chown -R tdarr:tdarr /tmp/tdarr-subtitle-ocr /config 2>/dev/null || true
+chown -R tdarr:tdarr /tmp/tdarr-subtitle-ocr /config /home/tdarr 2>/dev/null || true
 
 exec runuser -u tdarr -- "$@"

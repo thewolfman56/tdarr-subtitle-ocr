@@ -29,6 +29,8 @@
   <Config Name="IntelDri" Target="/dev/dri" Default="/dev/dri" Mode="rw" Description="Pass through Intel GPU render devices for OpenVINO" Type="Path" Display="advanced" Required="false" Mask="false">/dev/dri</Config>
   <Config Name="IntelAccel" Target="/dev/accel" Default="/dev/accel" Mode="rw" Description="Pass through Intel NPU accel devices for OpenVINO" Type="Path" Display="advanced" Required="false" Mask="false">/dev/accel</Config>
   <Config Name="ApiToken" Target="OCR_API_TOKEN" Default="" Mode="" Description="Bearer token required by the client wrapper" Type="Variable" Display="always" Required="false" Mask="true"/>
+  <Config Name="PUID" Target="PUID" Default="99" Mode="" Description="Container user ID. Use 99 for unRAID's nobody user so /config stays writable." Type="Variable" Display="always" Required="true" Mask="false">99</Config>
+  <Config Name="PGID" Target="PGID" Default="100" Mode="" Description="Container group ID. Use 100 for unRAID's users group." Type="Variable" Display="always" Required="true" Mask="false">100</Config>
   <Config Name="BackendPolicy" Target="OCR_BACKEND_POLICY" Default="auto" Mode="" Description="auto, nvidia, intel, npu, or subtitleedit" Type="Variable" Display="advanced" Required="true" Mask="false">auto</Config>
   <Config Name="BackendStrict" Target="OCR_BACKEND_STRICT" Default="false" Mode="" Description="Fail instead of falling back when requested GPU backend is unavailable" Type="Variable" Display="advanced" Required="true" Mask="false">false</Config>
   <Config Name="AllowedRoots" Target="OCR_ALLOWED_ROOTS" Default="/media,/cache,/work" Mode="" Description="Comma-separated path roots allowed for OCR requests" Type="Variable" Display="advanced" Required="true" Mask="false">/media,/cache,/work</Config>
