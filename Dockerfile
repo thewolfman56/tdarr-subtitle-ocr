@@ -69,6 +69,7 @@ RUN curl -fsSL -o /tmp/subtitleedit.zip "https://github.com/SubtitleEdit/subtitl
 
 COPY src /opt/tdarr-subtitle-ocr/src
 COPY client /opt/tdarr-subtitle-ocr/client
+COPY docker/entrypoint.sh /opt/tdarr-subtitle-ocr/docker/entrypoint.sh
 
 RUN install -d /opt/tdarr-subtitle-ocr/bin \
     && cp /opt/tdarr-subtitle-ocr/src/bin/auto_ocr_engine.py /opt/tdarr-subtitle-ocr/bin/auto_ocr_engine.py \
@@ -77,12 +78,13 @@ RUN install -d /opt/tdarr-subtitle-ocr/bin \
     && chmod +x /opt/tdarr-subtitle-ocr/bin/auto_ocr_engine.py \
     && chmod +x /opt/tdarr-subtitle-ocr/bin/gpu_ocr_engine.py \
     && chmod +x /opt/tdarr-subtitle-ocr/bin/subtitle_edit_engine.py \
+    && chmod +x /opt/tdarr-subtitle-ocr/docker/entrypoint.sh \
     && chmod +x /opt/tdarr-subtitle-ocr/client/tdarr-ocr-client.sh \
     && useradd --system --create-home --uid 10001 tdarr \
     && mkdir -p /config /work /media /cache /tmp/tdarr-subtitle-ocr \
     && chown -R tdarr:tdarr /opt/tdarr-subtitle-ocr /config /work /media /cache /tmp/tdarr-subtitle-ocr
 
-USER tdarr
+ENTRYPOINT ["/opt/tdarr-subtitle-ocr/docker/entrypoint.sh"]
 
 EXPOSE 8484
 
