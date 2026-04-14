@@ -19,6 +19,12 @@ sync_runtime_user() {
   fi
 }
 
+ensure_dir() {
+  target="$1"
+  mkdir -p "$target" 2>/dev/null || true
+  chown tdarr:tdarr "$target" 2>/dev/null || true
+}
+
 prepare_dir() {
   target="$1"
   if [ -z "$target" ]; then
@@ -33,7 +39,8 @@ prepare_dir() {
 }
 
 sync_runtime_user
-install -d -o tdarr -g tdarr /home/tdarr /tmp/tdarr-subtitle-ocr
+ensure_dir /home/tdarr
+ensure_dir /tmp/tdarr-subtitle-ocr
 prepare_dir "/config"
 prepare_dir "${OCR_COPY_CLIENT_DIR:-}"
 chown -R tdarr:tdarr /tmp/tdarr-subtitle-ocr /config /home/tdarr 2>/dev/null || true
