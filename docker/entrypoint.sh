@@ -25,8 +25,21 @@ ensure_dir() {
   chown tdarr:tdarr "$target" 2>/dev/null || true
 }
 
+runuser_available() {
+  runuser -u tdarr -- true >/dev/null 2>&1
+}
+
+run_tdarr_command() {
+  if runuser_available; then
+    runuser -u tdarr -- "$@"
+    return
+  fi
+
+  "$@"
+}
+
 run_as_tdarr() {
-  if runuser -u tdarr -- true 2>/dev/null; then
+  if runuser_available; then
     exec runuser -u tdarr -- "$@"
   fi
 
@@ -42,8 +55,8 @@ prepare_dir() {
 
   parent_dir=$(dirname "$target")
   mkdir -p "$parent_dir" 2>/dev/null || true
-  runuser -u tdarr -- mkdir -p "$parent_dir"
-  runuser -u tdarr -- mkdir -p "$target"
+  run_tdarr_command mkdir -p "$parent_dir"
+  run_tdarr_command mkdir -p "$target"
   chown -R tdarr:tdarr "$target" "$parent_dir" 2>/dev/null || true
 }
 
