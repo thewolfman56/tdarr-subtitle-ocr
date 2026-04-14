@@ -5,8 +5,17 @@ DEFAULT_UID=10001
 DEFAULT_GID=10001
 TARGET_UID="${PUID:-$DEFAULT_UID}"
 TARGET_GID="${PGID:-$DEFAULT_GID}"
+IS_ROOT=0
+
+if [ "$(id -u)" = "0" ]; then
+  IS_ROOT=1
+fi
 
 sync_runtime_user() {
+  if [ "$IS_ROOT" -ne 1 ]; then
+    return 0
+  fi
+
   current_uid=$(id -u tdarr)
   current_gid=$(id -g tdarr)
 
@@ -22,10 +31,16 @@ sync_runtime_user() {
 ensure_dir() {
   target="$1"
   mkdir -p "$target" 2>/dev/null || true
-  chown tdarr:tdarr "$target" 2>/dev/null || true
+  if [ "$IS_ROOT" -eq 1 ]; then
+    chown tdarr:tdarr "$target" 2>/dev/null || true
+  fi
 }
 
 runuser_available() {
+  if [ "$IS_ROOT" -ne 1 ]; then
+    return 1
+  fi
+
   runuser -u tdarr -- true >/dev/null 2>&1
 }
 
@@ -57,7 +72,9 @@ prepare_dir() {
   mkdir -p "$parent_dir" 2>/dev/null || true
   run_tdarr_command mkdir -p "$parent_dir"
   run_tdarr_command mkdir -p "$target"
-  chown -R tdarr:tdarr "$target" "$parent_dir" 2>/dev/null || true
+  if [ "$IS_ROOT" -eq 1 ]; then
+    chown -R tdarr:tdarr "$target" "$parent_dir" 2>/dev/null || true
+  fi
 }
 
 sync_runtime_user
@@ -65,6 +82,8 @@ ensure_dir /home/tdarr
 ensure_dir /tmp/tdarr-subtitle-ocr
 prepare_dir "/config"
 prepare_dir "${OCR_COPY_CLIENT_DIR:-}"
-chown -R tdarr:tdarr /tmp/tdarr-subtitle-ocr /config /home/tdarr 2>/dev/null || true
+if [ "$IS_ROOT" -eq 1 ]; then
+  chown -R tdarr:tdarr /tmp/tdarr-subtitle-ocr /config /home/tdarr 2>/dev/null || true
+fi
 
 run_as_tdarr "$@"

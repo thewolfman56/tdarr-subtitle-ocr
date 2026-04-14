@@ -148,7 +148,7 @@ Example equivalent settings:
 Recommended extra parameters:
 
 ```text
---read-only --tmpfs /tmp:size=512m,mode=1777 --cap-drop=ALL --security-opt=no-new-privileges:true --pids-limit=256
+--user 99:100 --read-only --tmpfs /tmp:size=512m,mode=1777 --cap-drop=ALL --security-opt=no-new-privileges:true --pids-limit=256
 ```
 
 Recommended environment variables:
@@ -166,7 +166,7 @@ OCR_MAX_CONCURRENT_JOBS=1
 OCR_MAX_INPUT_SIZE_MB=256
 ```
 
-On unRAID, `PUID=99` and `PGID=100` match the default `nobody:users` ownership of appdata shares. That lets the container create `/config/client` without having to pre-create it manually or open the folder up with `777`.
+On unRAID, run the container as `99:100` and keep `PUID=99` and `PGID=100`. Those values match the default `nobody:users` ownership of appdata shares, so the sidecar can create `/config/client` without having to pre-create it manually or open the folder up with `777`.
 
 For NVIDIA add:
 
