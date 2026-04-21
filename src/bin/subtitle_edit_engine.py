@@ -15,6 +15,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--output", required=True)
     parser.add_argument("--language", required=True)
     parser.add_argument("--subtitle-edit-bin", default="/opt/subtitleedit/SubtitleEdit.exe")
+    parser.add_argument("--xvfb-run-bin", default="/usr/bin/xvfb-run")
     parser.add_argument("--mono-bin", default="/usr/bin/mono")
     parser.add_argument("--timeout", type=int, default=3600)
     return parser
@@ -31,6 +32,8 @@ def main() -> int:
         source_for_convert = choose_input_path(input_path)
         runtime_bin = prepare_runtime_subtitle_edit(Path(args.subtitle_edit_bin).resolve())
         command = [
+            args.xvfb_run_bin,
+            "-a",
             args.mono_bin,
             str(runtime_bin),
             "/convert",

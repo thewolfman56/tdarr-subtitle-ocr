@@ -8,10 +8,13 @@ import sys
 from pathlib import Path
 
 SCRIPT_ROOT = Path(__file__).resolve().parents[1]
-if str(SCRIPT_ROOT) not in sys.path:
-    sys.path.insert(0, str(SCRIPT_ROOT))
+SOURCE_ROOT = SCRIPT_ROOT / "src"
+for candidate in (SCRIPT_ROOT, SOURCE_ROOT):
+    candidate_str = str(candidate)
+    if candidate_str not in sys.path:
+        sys.path.insert(0, candidate_str)
 
-from common.accelerators import detect_all
+from src.common.accelerators import detect_all
 
 IMAGE_EXTENSIONS = {".png", ".bmp", ".jpg", ".jpeg", ".tif", ".tiff", ".webp", ".json"}
 SUBTITLE_CONTAINER_EXTENSIONS = {".sup", ".sub", ".idx", ".mkv"}

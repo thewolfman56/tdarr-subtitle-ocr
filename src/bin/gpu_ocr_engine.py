@@ -11,10 +11,13 @@ from pathlib import Path
 from typing import Any
 
 SCRIPT_ROOT = Path(__file__).resolve().parents[1]
-if str(SCRIPT_ROOT) not in sys.path:
-    sys.path.insert(0, str(SCRIPT_ROOT))
+SOURCE_ROOT = SCRIPT_ROOT / "src"
+for candidate in (SCRIPT_ROOT, SOURCE_ROOT):
+    candidate_str = str(candidate)
+    if candidate_str not in sys.path:
+        sys.path.insert(0, candidate_str)
 
-from common.accelerators import detect_intel, detect_npu, detect_nvidia
+from src.common.accelerators import detect_intel, detect_npu, detect_nvidia
 
 IMAGE_EXTENSIONS = {".png", ".bmp", ".jpg", ".jpeg", ".tif", ".tiff", ".webp"}
 

@@ -45,6 +45,7 @@ RUN apt-get update \
       tesseract-ocr-eng \
       tesseract-ocr-osd \
       unzip \
+      xvfb \
     && curl -fsSL https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB \
       | gpg --dearmor -o /usr/share/keyrings/intel-openvino.gpg \
     && echo "deb [signed-by=/usr/share/keyrings/intel-openvino.gpg] https://apt.repos.intel.com/openvino/2024 ubuntu24 main" \

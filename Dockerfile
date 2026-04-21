@@ -50,6 +50,7 @@ RUN apt-get update \
       tesseract-ocr-eng \
       tesseract-ocr-osd \
       unzip \
+      xvfb \
     && ${PYTHON_BIN} -m pip install --upgrade pip setuptools wheel \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
