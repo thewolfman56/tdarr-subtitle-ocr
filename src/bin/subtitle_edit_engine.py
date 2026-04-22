@@ -15,6 +15,10 @@ IMAGE_SUBTITLE_CODECS = {
     "xsub",
 }
 
+RAW_SUBTITLE_SUFFIXES = {
+    "hdmv_pgs_subtitle": ".sup",
+}
+
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Subtitle Edit OCR engine wrapper.")
@@ -83,7 +87,8 @@ def choose_input_path(input_path: Path, temp_dir: Path, language: str) -> Path:
 def extract_subtitle_only_container(input_path: Path, temp_dir: Path, language: str) -> Path:
     stream = select_subtitle_stream(input_path, language)
     stream_index = stream["index"]
-    extracted_path = temp_dir / "subtitle-track.mkv"
+    codec_name = str(stream.get("codec_name", "")).strip().lower()
+    extracted_path = temp_dir / f"subtitle-track{RAW_SUBTITLE_SUFFIXES.get(codec_name, '.mkv')}"
 
     command = [
         "/usr/bin/ffmpeg",
