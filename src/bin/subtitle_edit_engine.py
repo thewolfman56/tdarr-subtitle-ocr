@@ -41,6 +41,9 @@ def main() -> int:
     with tempfile.TemporaryDirectory(prefix="subtitle-edit-ocr-") as temp_dir_raw:
         temp_dir = Path(temp_dir_raw)
         source_for_convert = choose_input_path(input_path, temp_dir, args.language)
+        if source_for_convert.suffix.lower() == ".sup":
+            return run_native_sup_ocr(source_for_convert, output_path, args.language)
+
         runtime_bin = prepare_runtime_subtitle_edit(Path(args.subtitle_edit_bin).resolve())
         command = [
             args.xvfb_run_bin,
@@ -70,6 +73,23 @@ def main() -> int:
         shutil.move(str(generated), str(output_path))
 
     print("ENGINE:subtitleedit")
+    return 0
+
+
+def run_native_sup_ocr(input_path: Path, output_path: Path, language: str) -> int:
+    command = [
+        "/opt/venv/bin/python",
+        "/opt/tdarr-subtitle-ocr/bin/sup_ocr_engine.py",
+        "--input",
+        str(input_path),
+        "--output",
+        str(output_path),
+        "--language",
+        language,
+    ]
+    completed = subprocess.run(command, capture_output=True, text=True, check=False)
+    if completed.returncode != 0:
+        raise SystemExit(completed.stderr.strip() or completed.stdout.strip() or "Native SUP OCR failed.")
     return 0
 
 

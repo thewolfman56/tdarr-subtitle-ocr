@@ -75,9 +75,13 @@ COPY docker/entrypoint.sh /opt/tdarr-subtitle-ocr/docker/entrypoint.sh
 RUN install -d /opt/tdarr-subtitle-ocr/bin \
     && cp /opt/tdarr-subtitle-ocr/src/bin/auto_ocr_engine.py /opt/tdarr-subtitle-ocr/bin/auto_ocr_engine.py \
     && cp /opt/tdarr-subtitle-ocr/src/bin/gpu_ocr_engine.py /opt/tdarr-subtitle-ocr/bin/gpu_ocr_engine.py \
+    && cp /opt/tdarr-subtitle-ocr/src/bin/native_ocr_engine.py /opt/tdarr-subtitle-ocr/bin/native_ocr_engine.py \
+    && cp /opt/tdarr-subtitle-ocr/src/bin/sup_ocr_engine.py /opt/tdarr-subtitle-ocr/bin/sup_ocr_engine.py \
     && cp /opt/tdarr-subtitle-ocr/src/bin/subtitle_edit_engine.py /opt/tdarr-subtitle-ocr/bin/subtitle_edit_engine.py \
     && chmod +x /opt/tdarr-subtitle-ocr/bin/auto_ocr_engine.py \
     && chmod +x /opt/tdarr-subtitle-ocr/bin/gpu_ocr_engine.py \
+    && chmod +x /opt/tdarr-subtitle-ocr/bin/native_ocr_engine.py \
+    && chmod +x /opt/tdarr-subtitle-ocr/bin/sup_ocr_engine.py \
     && chmod +x /opt/tdarr-subtitle-ocr/bin/subtitle_edit_engine.py \
     && chmod +x /opt/tdarr-subtitle-ocr/docker/entrypoint.sh \
     && chmod +x /opt/tdarr-subtitle-ocr/client/tdarr-ocr-client.sh \

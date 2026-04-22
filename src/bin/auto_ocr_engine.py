@@ -17,6 +17,7 @@ for candidate in (SCRIPT_ROOT, SOURCE_ROOT):
 from src.common.accelerators import detect_all
 
 IMAGE_EXTENSIONS = {".png", ".bmp", ".jpg", ".jpeg", ".tif", ".tiff", ".webp", ".json"}
+NATIVE_SUBTITLE_EXTENSIONS = {".sup"}
 SUBTITLE_CONTAINER_EXTENSIONS = {".sup", ".sub", ".idx", ".mkv"}
 
 
@@ -54,6 +55,20 @@ def main() -> int:
                     args.language,
                 ]
             )
+
+    if input_path.suffix.lower() in NATIVE_SUBTITLE_EXTENSIONS:
+        return run_command(
+            [
+                sys.executable,
+                "/opt/tdarr-subtitle-ocr/bin/sup_ocr_engine.py",
+                "--input",
+                str(input_path),
+                "--output",
+                str(output_path),
+                "--language",
+                args.language,
+            ]
+        )
 
     if strict_mode and backend_policy in {"nvidia", "intel", "npu"} and input_path.suffix.lower() in SUBTITLE_CONTAINER_EXTENSIONS:
         raise SystemExit(
